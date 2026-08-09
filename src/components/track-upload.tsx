@@ -78,6 +78,7 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
 
       const response = await fetch("/api/tracks", {
         method: "POST",
+        credentials: "include",
         body: formData,
       });
 
