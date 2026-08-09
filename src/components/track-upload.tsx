@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Upload, Music, X, ImageIcon } from "lucide-react";
 
 interface TrackUploadProps {
@@ -19,6 +19,12 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
   const [success, setSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const artworkInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (artworkPreview) URL.revokeObjectURL(artworkPreview);
+    };
+  }, []);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -43,11 +49,10 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
         setError("Please select an image file for artwork");
         return;
       }
+      if (artworkPreview) URL.revokeObjectURL(artworkPreview);
       setSelectedArtwork(file);
       setError(null);
-      const reader = new FileReader();
-      reader.onload = (ev) => setArtworkPreview(ev.target?.result as string);
-      reader.readAsDataURL(file);
+      setArtworkPreview(URL.createObjectURL(file));
     }
   };
 
