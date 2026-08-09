@@ -3,12 +3,13 @@ import {
   text,
   timestamp,
   integer,
+  sql,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable("user", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+    .default(sql`gen_random_uuid()::text`),
   name: text("name"),
   email: text("email").notNull().unique(),
   emailVerified: timestamp("emailVerified"),
@@ -18,7 +19,7 @@ export const users = pgTable("user", {
 export const accounts = pgTable("account", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+    .default(sql`gen_random_uuid()::text`),
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -37,7 +38,7 @@ export const accounts = pgTable("account", {
 export const sessions = pgTable("session", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+    .default(sql`gen_random_uuid()::text`),
   sessionToken: text("sessionToken").notNull().unique(),
   userId: text("userId")
     .notNull()
@@ -54,7 +55,7 @@ export const verificationTokens = pgTable("verification_token", {
 export const musicTracks = pgTable("music_tracks", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+    .default(sql`gen_random_uuid()::text`),
   userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
