@@ -155,13 +155,23 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-8 md:py-12">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#2c2416]">
-            Welcome, {session.user?.name?.split(" ")[0] || "there"}
-          </h1>
-          <p className="text-[#6b5d50] mt-2 text-sm sm:text-base">
-            Manage and play your music collection
-          </p>
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#2c2416]">
+              Welcome, {session.user?.name?.split(" ")[0] || "there"}
+            </h1>
+            <p className="text-[#6b5d50] mt-2 text-sm sm:text-base">
+              Manage and play your music collection
+            </p>
+          </div>
+          {tracks.length > 0 && (
+            <button
+              onClick={handleClearAll}
+              className="text-sm bg-[#c0392b] text-white px-4 py-2 rounded-lg hover:bg-[#a02010] transition-colors self-start"
+            >
+              Clear all tracks
+            </button>
+          )}
         </div>
 
         {/* Player */}
