@@ -3,8 +3,8 @@ import {
   text,
   timestamp,
   integer,
-  sql,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const users = pgTable("user", {
   id: text("id")
