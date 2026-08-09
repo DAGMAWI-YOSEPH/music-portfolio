@@ -5,6 +5,8 @@ import { musicTracks } from "@/lib/db/schema";
 import { put } from "@vercel/blob";
 import { eq } from "drizzle-orm";
 
+export const runtime = "nodejs";
+
 export async function GET() {
   const session = await auth();
 
@@ -43,28 +45,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
     const blob = await put(
       `music/${session.user.id}/${Date.now()}-${file.name}`,
-      buffer,
-      {
-        access: "public",
-        contentType: file.type || "audio/mpeg",
-      }
+      file,
+      { access: "public" }
     );
 
     let coverUrl: string | null = null;
     if (artwork && artwork.size > 0) {
-      const artBuffer = Buffer.from(await artwork.arrayBuffer());
       const artBlob = await put(
         `artwork/${session.user.id}/${Date.now()}-${artwork.name}`,
-        artBuffer,
-        {
-          access: "public",
-          contentType: artwork.type || "image/jpeg",
-        }
+        artwork,
+        { access: "public" }
       );
       coverUrl = artBlob.url;
     }
@@ -85,7 +77,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to upload track" },
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to upload track",
+      },
       { status: 500 }
     );
   }

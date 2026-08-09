@@ -39,8 +39,8 @@ export function AudioPlayer({
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
+  const [audioSrc, setAudioSrc] = useState("");
   const audioRef = useRef<HTMLAudioElement>(null);
-  const armRef = useRef<HTMLDivElement>(null);
 
   const currentTrack = tracks[currentTrackIndex];
 
@@ -51,16 +51,24 @@ export function AudioPlayer({
   }, [volume, isMuted]);
 
   useEffect(() => {
-    if (audioRef.current) {
+    setCurrentTime(0);
+    setDuration(0);
+    if (currentTrack?.fileUrl) {
+      setAudioSrc(currentTrack.fileUrl);
+    }
+  }, [currentTrackIndex, currentTrack?.fileUrl]);
+
+  useEffect(() => {
+    if (audioRef.current && audioSrc) {
       audioRef.current.load();
       if (isPlaying) {
         audioRef.current.play().catch(() => {});
       }
     }
-  }, [currentTrackIndex]);
+  }, [audioSrc, isPlaying]);
 
   const togglePlay = useCallback(() => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !audioSrc) return;
     if (isPlaying) {
       audioRef.current.pause();
       onPlayStateChange(false);
@@ -68,7 +76,7 @@ export function AudioPlayer({
       audioRef.current.play().catch(() => {});
       onPlayStateChange(true);
     }
-  }, [isPlaying, onPlayStateChange]);
+  }, [isPlaying, onPlayStateChange, audioSrc]);
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
@@ -84,7 +92,7 @@ export function AudioPlayer({
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const time = parseFloat(e.target.value);
-    if (audioRef.current) {
+    if (audioRef.current && isFinite(time)) {
       audioRef.current.currentTime = time;
       setCurrentTime(time);
     }
@@ -103,6 +111,7 @@ export function AudioPlayer({
   };
 
   const formatTime = (time: number) => {
+    if (!isFinite(time)) return "0:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
@@ -110,28 +119,34 @@ export function AudioPlayer({
 
   if (!currentTrack) return null;
 
+  const safeDuration = isFinite(duration) && duration > 0 ? duration : 1;
   const rotationDeg = duration > 0 ? (currentTime / duration) * 360 : 0;
 
   return (
     <div className="bg-[#1a1410] text-white rounded-3xl shadow-2xl overflow-hidden">
-      <audio
-        ref={audioRef}
-        src={currentTrack.fileUrl}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-        onEnded={() => {
-          onPlayStateChange(false);
-          if (currentTrackIndex < tracks.length - 1) {
-            onTrackChange(currentTrackIndex + 1);
-          }
-        }}
-        preload="metadata"
-      />
+      {audioSrc && (
+        <audio
+          ref={audioRef}
+          src={audioSrc}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onError={() => {
+            setDuration(0);
+            setCurrentTime(0);
+          }}
+          onEnded={() => {
+            onPlayStateChange(false);
+            if (currentTrackIndex < tracks.length - 1) {
+              onTrackChange(currentTrackIndex + 1);
+            }
+          }}
+          preload="metadata"
+        />
+      )}
 
       <div className="flex flex-col lg:flex-row items-center gap-6 sm:gap-8 p-6 sm:p-8">
         {/* Turntable */}
         <div className="relative flex-shrink-0">
-          {/* Turntable base */}
           <div
             className="relative w-52 h-52 sm:w-64 sm:h-64 rounded-full"
             style={{
@@ -141,7 +156,6 @@ export function AudioPlayer({
                 "inset 0 2px 20px rgba(0,0,0,0.5), 0 0 60px rgba(0,0,0,0.3)",
             }}
           >
-            {/* Vinyl grooves */}
             {[...Array(12)].map((_, i) => (
               <div
                 key={i}
@@ -156,7 +170,6 @@ export function AudioPlayer({
               />
             ))}
 
-            {/* Spinning platter */}
             <div
               className="absolute rounded-full"
               style={{
@@ -166,13 +179,12 @@ export function AudioPlayer({
                 bottom: "5%",
                 background:
                   "conic-gradient(from 0deg, #2c2416, #3a3025, #2c2416, #1a1611, #2c2416)",
-                animation: isPlaying
-                  ? "spin 2s linear infinite"
-                  : "none",
-                transform: isPlaying ? undefined : `rotate(${rotationDeg}deg)`,
+                animation: isPlaying ? "spin 2s linear infinite" : "none",
+                transform: isPlaying
+                  ? undefined
+                  : `rotate(${rotationDeg}deg)`,
               }}
             >
-              {/* Album art center */}
               <div
                 className="absolute rounded-full overflow-hidden flex items-center justify-center"
                 style={{
@@ -187,6 +199,9 @@ export function AudioPlayer({
                     src={currentTrack.coverUrl}
                     alt={currentTrack.title}
                     className="w-full h-full object-cover rounded-full"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full rounded-full bg-gradient-to-br from-[#3d3228] to-[#2c2416] flex items-center justify-center">
@@ -200,7 +215,6 @@ export function AudioPlayer({
                 )}
               </div>
 
-              {/* Center spindle */}
               <div
                 className="absolute rounded-full bg-[#1a1611] border-2 border-[#3a3025]"
                 style={{
@@ -212,22 +226,17 @@ export function AudioPlayer({
               />
             </div>
 
-            {/* Tonearm */}
             <div
-              ref={armRef}
               className="absolute -top-2 -right-4 sm:-right-6 origin-top-right"
               style={{
-                transform: isPlaying
-                  ? "rotate(18deg)"
-                  : "rotate(-2deg)",
-                transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+                transform: isPlaying ? "rotate(18deg)" : "rotate(-2deg)",
+                transition:
+                  "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
                 zIndex: 10,
               }}
             >
-              {/* Arm pivot */}
               <div className="relative">
                 <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#c9a88c] border-2 border-[#a08060] shadow-lg" />
-                {/* Arm */}
                 <div
                   className="absolute top-2 sm:top-3 left-0 w-24 sm:w-32 h-1.5 bg-gradient-to-r from-[#c9a88c] to-[#a08060] rounded-full"
                   style={{
@@ -235,7 +244,6 @@ export function AudioPlayer({
                     transformOrigin: "left center",
                   }}
                 >
-                  {/* Headshell */}
                   <div className="absolute -right-1 -top-1 w-3 h-3 sm:w-4 sm:h-4 bg-[#8b7a68] rounded-sm" />
                 </div>
               </div>
@@ -245,7 +253,6 @@ export function AudioPlayer({
 
         {/* Controls */}
         <div className="flex-1 w-full text-center lg:text-left">
-          {/* Track Info */}
           <div className="mb-4 sm:mb-6">
             <h2 className="text-xl sm:text-2xl font-bold text-white">
               {currentTrack.title}
@@ -256,13 +263,13 @@ export function AudioPlayer({
             </p>
           </div>
 
-          {/* Progress */}
           <div className="mb-4 sm:mb-6">
             <input
               type="range"
               min={0}
-              max={duration || 0}
-              value={currentTime}
+              max={safeDuration}
+              step={0.1}
+              value={Math.min(currentTime, safeDuration)}
               onChange={handleSeek}
               className="w-full h-1.5 bg-[#3a3025] rounded-full appearance-none cursor-pointer accent-[#8b5e3c]"
             />
@@ -272,7 +279,6 @@ export function AudioPlayer({
             </div>
           </div>
 
-          {/* Playback Controls */}
           <div className="flex items-center justify-center lg:justify-start gap-4 sm:gap-6 mb-4 sm:mb-6">
             <button
               onClick={handlePrevious}
@@ -302,7 +308,6 @@ export function AudioPlayer({
             </button>
           </div>
 
-          {/* Volume */}
           <div className="hidden sm:flex items-center justify-center lg:justify-start gap-3">
             <button
               onClick={() => setIsMuted(!isMuted)}
@@ -328,7 +333,6 @@ export function AudioPlayer({
             />
           </div>
 
-          {/* Track counter */}
           <p className="text-xs text-[#6b5d50] mt-3 sm:mt-4 text-center lg:text-left">
             Track {currentTrackIndex + 1} of {tracks.length}
           </p>
