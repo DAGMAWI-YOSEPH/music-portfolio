@@ -1,43 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { musicTracks } from "@/lib/db/schema";
 import { put } from "@vercel/blob";
 import { eq } from "drizzle-orm";
 
-export const runtime = "nodejs";
-
-async function getSessionUserId(request: NextRequest) {
-  const cookieHeader = request.headers.get("cookie") || "";
-  const fakeReq = { headers: { cookie: cookieHeader } } as any;
-  const token = await getToken({ req: fakeReq });
-  return token?.sub || null;
-}
-
 export async function GET(request: NextRequest) {
-  const userId = await getSessionUserId(request);
+  try {
+    const session = await auth();
+    console.log("[API/tracks] session:", JSON.stringify(session, null, 2));
 
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session?.user?.id) {
+      console.log("[API/tracks] No session or user.id. session:", session);
+      return NextResponse.json({ error: "Unauthorized", debug: { hasSession: !!session, hasUser: !!session?.user, hasId: !!session?.user?.id } }, { status: 401 });
+    }
+
+    const userTracks = await db
+      .select()
+      .from(musicTracks)
+      .where(eq(musicTracks.userId, session.user.id))
+      .orderBy(musicTracks.createdAt);
+
+    return NextResponse.json(userTracks);
+  } catch (err: any) {
+    console.error("[API/tracks] GET error:", err?.message, err?.stack);
+    return NextResponse.json({ error: err?.message || "Internal error" }, { status: 500 });
   }
-
-  const userTracks = await db
-    .select()
-    .from(musicTracks)
-    .where(eq(musicTracks.userId, userId))
-    .orderBy(musicTracks.createdAt);
-
-  return NextResponse.json(userTracks);
 }
 
 export async function POST(request: NextRequest) {
-  const userId = await getSessionUserId(request);
-
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const session = await auth();
+    console.log("[API/tracks POST] session:", JSON.stringify(session, null, 2));
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
     const artwork = formData.get("artwork") as File | null;
@@ -59,7 +58,7 @@ export async function POST(request: NextRequest) {
     const safeName = `${Date.now()}-${sanitize(file.name.replace(/\.[^/.]+$/, ""))}.${ext}`;
 
     const blob = await put(
-      `music/${userId}/${safeName}`,
+      `music/${session.user.id}/${safeName}`,
       file,
       { access: "public" }
     );
@@ -69,7 +68,7 @@ export async function POST(request: NextRequest) {
       const artExt = artwork.name.split(".").pop() || "png";
       const artSafeName = `${Date.now()}-${sanitize(artwork.name.replace(/\.[^/.]+$/, ""))}.${artExt}`;
       const artBlob = await put(
-        `artwork/${userId}/${artSafeName}`,
+        `artwork/${session.user.id}/${artSafeName}`,
         artwork,
         { access: "public" }
       );
@@ -79,7 +78,7 @@ export async function POST(request: NextRequest) {
     const newTrack = await db
       .insert(musicTracks)
       .values({
-        userId,
+        userId: session.user.id,
         title,
         artist: artist || null,
         album: album || null,
@@ -90,33 +89,24 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(newTrack[0], { status: 201 });
   } catch (error: any) {
-    console.error("Upload error:", error);
-    const msg =
-      error?.name === "DOMException"
-        ? `DOMException: ${error.message} (pattern: ${error.pattern || "n/a"})`
-        : error instanceof Error
-          ? error.message
-          : "Failed to upload track";
-    return NextResponse.json({ error: msg }, { status: 500 });
+    console.error("[API/tracks] POST error:", error?.message, error?.stack);
+    return NextResponse.json({ error: error?.message || "Failed to upload" }, { status: 500 });
   }
 }
 
 export async function DELETE(request: NextRequest) {
-  const userId = await getSessionUserId(request);
-
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const trackId = searchParams.get("id");
 
     if (!trackId) {
-      return NextResponse.json(
-        { error: "Track ID is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Track ID is required" }, { status: 400 });
     }
 
     const track = await db
@@ -125,21 +115,14 @@ export async function DELETE(request: NextRequest) {
       .where(eq(musicTracks.id, trackId))
       .limit(1);
 
-    if (!track.length || track[0].userId !== userId) {
-      return NextResponse.json(
-        { error: "Track not found or unauthorized" },
-        { status: 404 }
-      );
+    if (!track.length || track[0].userId !== session.user.id) {
+      return NextResponse.json({ error: "Track not found or unauthorized" }, { status: 404 });
     }
 
     await db.delete(musicTracks).where(eq(musicTracks.id, trackId));
-
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Delete error:", error);
-    return NextResponse.json(
-      { error: "Failed to delete track" },
-      { status: 500 }
-    );
+  } catch (error: any) {
+    console.error("[API/tracks] DELETE error:", error?.message);
+    return NextResponse.json({ error: "Failed to delete track" }, { status: 500 });
   }
 }
