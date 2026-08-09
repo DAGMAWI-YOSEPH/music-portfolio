@@ -7,17 +7,15 @@ import { eq } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
-async function getUserId(request: NextRequest) {
-  const token = await getToken({
-    req: request as any,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
-  console.log("Auth token:", token ? { sub: token.sub, id: token.id, email: token.email } : null);
-  return (token?.sub || token?.id) as string | undefined;
+async function getSessionUserId(request: NextRequest) {
+  const cookieHeader = request.headers.get("cookie") || "";
+  const fakeReq = { headers: { cookie: cookieHeader } } as any;
+  const token = await getToken({ req: fakeReq });
+  return token?.sub || null;
 }
 
 export async function GET(request: NextRequest) {
-  const userId = await getUserId(request);
+  const userId = await getSessionUserId(request);
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -33,7 +31,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const userId = await getUserId(request);
+  const userId = await getSessionUserId(request);
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -104,7 +102,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const userId = await getUserId(request);
+  const userId = await getSessionUserId(request);
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
