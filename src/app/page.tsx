@@ -16,17 +16,7 @@ export default async function HomePage() {
           <span className="text-xl font-bold text-[#191414]">Music Portfolio</span>
         </Link>
         
-        <div className="flex items-center gap-6">
-          <Link href="/premium" className="text-sm font-medium hover:text-[#1db954] transition-colors">
-            Premium
-          </Link>
-          <Link href="/help" className="text-sm font-medium hover:text-[#1db954] transition-colors">
-            Help
-          </Link>
-          <Link href="/download" className="text-sm font-medium hover:text-[#1db954] transition-colors">
-            Download
-          </Link>
-          <span className="text-[#191414]">|</span>
+        <div className="flex items-center gap-4">
           {session?.user ? (
             <Link 
               href="/dashboard" 
@@ -35,17 +25,12 @@ export default async function HomePage() {
               Dashboard
             </Link>
           ) : (
-            <>
-              <Link href="/signup" className="text-sm font-medium hover:text-[#1db954] transition-colors">
-                Sign up
-              </Link>
-              <Link 
-                href="/login" 
-                className="text-sm font-medium bg-[#191414] text-white px-6 py-2 rounded-full hover:bg-[#333] transition-colors"
-              >
-                Log in
-              </Link>
-            </>
+            <Link 
+              href="/login" 
+              className="text-sm font-medium bg-[#191414] text-white px-6 py-2 rounded-full hover:bg-[#333] transition-colors"
+            >
+              Log in
+            </Link>
           )}
         </div>
       </nav>
@@ -64,20 +49,12 @@ export default async function HomePage() {
               Upload, organize, and play your personal music collection. 
               Your tracks, always accessible.
             </p>
-            <div className="flex gap-4">
-              <Link 
-                href={session?.user ? "/dashboard" : "/login"}
-                className="bg-[#1db954] text-white px-8 py-3 rounded-full font-semibold hover:bg-[#1ed760] transition-all hover:scale-105"
-              >
-                {session?.user ? "Go to Dashboard" : "Get Started"}
-              </Link>
-              <Link 
-                href="/about"
-                className="border-2 border-[#191414] text-[#191414] px-8 py-3 rounded-full font-semibold hover:bg-[#191414] hover:text-white transition-all"
-              >
-                Learn More
-              </Link>
-            </div>
+            <Link 
+              href={session?.user ? "/dashboard" : "/login"}
+              className="inline-block bg-[#1db954] text-white px-8 py-3 rounded-full font-semibold hover:bg-[#1ed760] transition-all hover:scale-105"
+            >
+              {session?.user ? "Go to Dashboard" : "Get Started"}
+            </Link>
           </div>
 
           {/* Right Content - Vinyl Record */}
@@ -89,34 +66,8 @@ export default async function HomePage() {
 
       {/* Footer */}
       <footer className="py-8 px-8 border-t border-[#e0e0e0]">
-        <div className="max-w-6xl mx-auto flex flex-wrap justify-between text-sm text-[#535353]">
-          <div className="space-y-2">
-            <h4 className="font-semibold text-[#191414]">Company</h4>
-            <p>About</p>
-            <p>Jobs</p>
-            <p>For the Record</p>
-          </div>
-          <div className="space-y-2">
-            <h4 className="font-semibold text-[#191414]">Communities</h4>
-            <p>For Artists</p>
-            <p>Developers</p>
-            <p>Advertising</p>
-          </div>
-          <div className="space-y-2">
-            <h4 className="font-semibold text-[#191414]">Useful links</h4>
-            <p>Support</p>
-            <p>Free Mobile App</p>
-          </div>
-          <div className="space-y-2">
-            <h4 className="font-semibold text-[#191414]">Music Portfolio Plans</h4>
-            <p>Premium Individual</p>
-            <p>Premium Duo</p>
-            <p>Premium Family</p>
-            <p>Premium Student</p>
-          </div>
-        </div>
-        <div className="max-w-6xl mx-auto mt-8 text-xs text-[#535353]">
-          © 2024 Music Portfolio
+        <div className="max-w-6xl mx-auto text-center text-xs text-[#535353]">
+          © 2026 Music Portfolio
         </div>
       </footer>
     </div>
