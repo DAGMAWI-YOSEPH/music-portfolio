@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
-import { AudioPlayer } from "@/components/audio-player";
 import { TrackUpload } from "@/components/track-upload";
 import { TrackList } from "@/components/track-list";
 
@@ -62,7 +61,7 @@ export function DashboardClient({ user }: { user: User }) {
   );
 
   const handleClearAll = async () => {
-    if (!confirm("Delete ALL tracks? This cannot be undone.")) return;
+    if (!confirm("Delete ALL tracks?")) return;
     try {
       const response = await fetch("/api/tracks/clear", { method: "DELETE" });
       if (response.ok) {
@@ -144,18 +143,6 @@ export function DashboardClient({ user }: { user: User }) {
             </button>
           )}
         </div>
-
-        {tracks.length > 0 && currentTrackIndex !== null && (
-          <div className="mb-6 sm:mb-8">
-            <AudioPlayer
-              tracks={tracks}
-              currentTrackIndex={currentTrackIndex}
-              isPlaying={isPlaying}
-              onTrackChange={(i) => { setCurrentTrackIndex(i); setIsPlaying(true); }}
-              onPlayStateChange={setIsPlaying}
-            />
-          </div>
-        )}
 
         <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
           <div className="lg:col-span-1 order-2 lg:order-1">
