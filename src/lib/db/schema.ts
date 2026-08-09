@@ -3,6 +3,7 @@ import {
   text,
   timestamp,
   integer,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const musicUsers = pgTable("music_users", {
@@ -11,6 +12,7 @@ export const musicUsers = pgTable("music_users", {
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name"),
   email: text("email").notNull().unique(),
+  emailVerified: timestamp("email_verified"),
   image: text("image"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
