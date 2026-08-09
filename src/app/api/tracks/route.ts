@@ -45,16 +45,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const sanitize = (name: string) =>
+      name.replace(/[^a-zA-Z0-9._-]/g, "_").replace(/_{2,}/g, "_");
+
+    const ext = file.name.split(".").pop() || "bin";
+    const safeName = `${Date.now()}-${sanitize(file.name.replace(/\.[^/.]+$/, ""))}.${ext}`;
+
     const blob = await put(
-      `music/${session.user.id}/${Date.now()}-${file.name}`,
+      `music/${session.user.id}/${safeName}`,
       file,
       { access: "public" }
     );
 
     let coverUrl: string | null = null;
     if (artwork && artwork.size > 0) {
+      const artExt = artwork.name.split(".").pop() || "png";
+      const artSafeName = `${Date.now()}-${sanitize(artwork.name.replace(/\.[^/.]+$/, ""))}.${artExt}`;
       const artBlob = await put(
-        `artwork/${session.user.id}/${Date.now()}-${artwork.name}`,
+        `artwork/${session.user.id}/${artSafeName}`,
         artwork,
         { access: "public" }
       );
@@ -74,15 +82,15 @@ export async function POST(request: NextRequest) {
       .returning();
 
     return NextResponse.json(newTrack[0], { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Upload error:", error);
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Failed to upload track",
-      },
-      { status: 500 }
-    );
+    const msg =
+      error?.name === "DOMException"
+        ? `DOMException: ${error.message} (pattern: ${error.pattern || "n/a"})`
+        : error instanceof Error
+          ? error.message
+          : "Failed to upload track";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
