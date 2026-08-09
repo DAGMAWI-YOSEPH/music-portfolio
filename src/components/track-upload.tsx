@@ -169,7 +169,6 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
                 onClick={(e) => {
                   e.preventDefault();
                   setSelectedFile(null);
-                  if (fileInputRef.current) fileInputRef.current.value = "";
                 }}
                 className="ml-auto text-[#9a8a7a] hover:text-[#c0392b] flex-shrink-0"
               >
