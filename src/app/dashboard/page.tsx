@@ -9,12 +9,10 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const user = {
-    name: session.user.name || null,
-    email: session.user.email || null,
-    image: session.user.image || null,
-    id: session.user.id || "",
-  };
-
-  return <DashboardClient user={user} />;
+  return (
+    <div>
+      <h1>Dashboard works</h1>
+      <p>User: {session.user.name}</p>
+    </div>
+  );
 }
