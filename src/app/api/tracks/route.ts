@@ -4,12 +4,10 @@ import { db } from "@/lib/db";
 import { musicTracks } from "@/lib/db/schema";
 import { put } from "@vercel/blob";
 import { eq } from "drizzle-orm";
-import * as fs from "fs";
-import * as path from "path";
 
 export async function GET() {
   const session = await auth();
-  
+
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -25,7 +23,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const session = await auth();
-  
+
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -44,36 +42,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let fileUrl: string;
+    const blob = await put(
+      `music/${session.user.id}/${Date.now()}-${file.name}`,
+      file,
+      { access: "public" }
+    );
 
-    // Check if we're in production (Vercel) or development
-    if (process.env.BLOB_READ_WRITE_TOKEN && process.env.BLOB_READ_WRITE_TOKEN !== "vercel_blob_rw_...") {
-      // Use Vercel Blob in production
-      const blob = await put(`music/${session.user.id}/${file.name}`, file, {
-        access: "public",
-      });
-      fileUrl = blob.url;
-    } else {
-      // Use local file storage in development
-      const uploadDir = path.join(process.cwd(), "public", "uploads", session.user.id);
-      
-      // Create directory if it doesn't exist
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-
-      const filePath = path.join(uploadDir, file.name);
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      fs.writeFileSync(filePath, buffer);
-      
-      fileUrl = `/uploads/${session.user.id}/${file.name}`;
-    }
-
-    // Get audio duration
-    const duration = await getAudioDuration(file);
-
-    // Save track to database
     const newTrack = await db
       .insert(musicTracks)
       .values({
@@ -81,8 +55,7 @@ export async function POST(request: NextRequest) {
         title,
         artist: artist || null,
         album: album || null,
-        duration: duration || null,
-        fileUrl,
+        fileUrl: blob.url,
       })
       .returning();
 
@@ -96,23 +69,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function getAudioDuration(file: File): Promise<number | null> {
-  return new Promise((resolve) => {
-    const audio = new Audio();
-    audio.src = URL.createObjectURL(file);
-    audio.onloadedmetadata = () => {
-      URL.revokeObjectURL(audio.src);
-      resolve(Math.floor(audio.duration));
-    };
-    audio.onerror = () => {
-      resolve(null);
-    };
-  });
-}
-
 export async function DELETE(request: NextRequest) {
   const session = await auth();
-  
+
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -128,7 +87,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Verify the track belongs to the user
     const track = await db
       .select()
       .from(musicTracks)
@@ -140,14 +98,6 @@ export async function DELETE(request: NextRequest) {
         { error: "Track not found or unauthorized" },
         { status: 404 }
       );
-    }
-
-    // Delete the file from local storage if it's a local file
-    if (track[0].fileUrl.startsWith("/uploads/")) {
-      const filePath = path.join(process.cwd(), "public", track[0].fileUrl);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
     }
 
     await db.delete(musicTracks).where(eq(musicTracks.id, trackId));
