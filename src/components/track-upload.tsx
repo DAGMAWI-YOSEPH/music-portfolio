@@ -89,12 +89,11 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
 
       setSelectedFile(null);
       setSelectedArtwork(null);
+      if (artworkPreview) URL.revokeObjectURL(artworkPreview);
       setArtworkPreview(null);
       setTitle("");
       setArtist("");
       setAlbum("");
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      if (artworkInputRef.current) artworkInputRef.current.value = "";
       setSuccess(true);
       onUploadComplete();
 
