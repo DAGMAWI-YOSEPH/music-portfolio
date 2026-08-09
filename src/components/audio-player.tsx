@@ -99,7 +99,7 @@ export function AudioPlayer({ tracks, currentTrackIndex, onTrackChange }: AudioP
   }
 
   return (
-    <div className="bg-[#2c2416] text-white p-6 rounded-2xl shadow-2xl">
+    <div className="bg-[#2c2416] text-white p-4 sm:p-6 rounded-2xl shadow-2xl">
       <audio
         ref={audioRef}
         src={currentTrack.fileUrl}
@@ -113,12 +113,12 @@ export function AudioPlayer({ tracks, currentTrackIndex, onTrackChange }: AudioP
         }}
       />
 
-      <div className="flex flex-col md:flex-row items-center gap-8">
+      <div className="flex flex-col items-center gap-4 sm:gap-6 md:flex-row md:gap-8">
         {/* Vinyl Record */}
         <div className="flex-shrink-0">
           <VinylRecord
             isPlaying={isPlaying}
-            size={200}
+            size={160}
             coverUrl={currentTrack.coverUrl || undefined}
           />
         </div>
@@ -126,15 +126,15 @@ export function AudioPlayer({ tracks, currentTrackIndex, onTrackChange }: AudioP
         {/* Player Controls */}
         <div className="flex-1 w-full">
           {/* Track Info */}
-          <div className="text-center md:text-left mb-6">
-            <h2 className="text-2xl font-bold">{currentTrack.title}</h2>
+          <div className="text-center md:text-left mb-4 sm:mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold">{currentTrack.title}</h2>
             {currentTrack.artist && (
-              <p className="text-[#c9a88c] mt-1">{currentTrack.artist}</p>
+              <p className="text-[#c9a88c] mt-1 text-sm sm:text-base">{currentTrack.artist}</p>
             )}
           </div>
 
           {/* Progress Bar */}
-          <div className="mb-4">
+          <div className="mb-3 sm:mb-4">
             <input
               type="range"
               min={0}
@@ -150,23 +150,23 @@ export function AudioPlayer({ tracks, currentTrackIndex, onTrackChange }: AudioP
           </div>
 
           {/* Controls */}
-          <div className="flex items-center justify-center md:justify-start gap-6">
+          <div className="flex items-center justify-center gap-4 sm:gap-6">
             <button
               onClick={handlePrevious}
               disabled={currentTrackIndex === 0}
               className="text-[#9a8a7a] hover:text-white transition-colors disabled:opacity-50"
             >
-              <SkipBack className="w-6 h-6" />
+              <SkipBack className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
 
             <button
               onClick={togglePlay}
-              className="bg-white text-[#2c2416] p-3 rounded-full hover:scale-105 transition-transform"
+              className="bg-white text-[#2c2416] p-2.5 sm:p-3 rounded-full hover:scale-105 transition-transform"
             >
               {isPlaying ? (
-                <Pause className="w-6 h-6" />
+                <Pause className="w-5 h-5 sm:w-6 sm:h-6" />
               ) : (
-                <Play className="w-6 h-6 ml-0.5" />
+                <Play className="w-5 h-5 sm:w-6 sm:h-6 ml-0.5" />
               )}
             </button>
 
@@ -175,11 +175,11 @@ export function AudioPlayer({ tracks, currentTrackIndex, onTrackChange }: AudioP
               disabled={currentTrackIndex === tracks.length - 1}
               className="text-[#9a8a7a] hover:text-white transition-colors disabled:opacity-50"
             >
-              <SkipForward className="w-6 h-6" />
+              <SkipForward className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
 
-            {/* Volume */}
-            <div className="flex items-center gap-2 ml-4">
+            {/* Volume - hidden on small screens */}
+            <div className="hidden sm:flex items-center gap-2 ml-4">
               <button
                 onClick={() => setIsMuted(!isMuted)}
                 className="text-[#9a8a7a] hover:text-white transition-colors"

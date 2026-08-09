@@ -33,7 +33,7 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedFile || !title) {
       setError("Please select a file and enter a title");
       return;
@@ -75,10 +75,10 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-lg">
-      <h3 className="text-xl font-bold mb-4 text-[#2c2416]">Upload Music</h3>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg">
+      <h3 className="text-lg sm:text-xl font-bold mb-4 text-[#2c2416]">Upload Music</h3>
+
+      <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
         {/* File Input */}
         <div>
           <input
@@ -91,14 +91,14 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
           />
           <label
             htmlFor="audio-upload"
-            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#ddd5c8] rounded-xl cursor-pointer hover:border-[#8b5e3c] transition-colors"
+            className="flex flex-col items-center justify-center w-full h-24 sm:h-32 border-2 border-dashed border-[#ddd5c8] rounded-xl cursor-pointer hover:border-[#8b5e3c] transition-colors"
           >
             {selectedFile ? (
-              <div className="flex items-center gap-3">
-                <Music className="w-8 h-8 text-[#8b5e3c]" />
-                <div className="text-left">
-                  <p className="font-medium text-[#2c2416]">{selectedFile.name}</p>
-                  <p className="text-sm text-[#6b5d50]">
+              <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4">
+                <Music className="w-6 h-6 sm:w-8 sm:h-8 text-[#8b5e3c] flex-shrink-0" />
+                <div className="text-left min-w-0">
+                  <p className="font-medium text-[#2c2416] text-sm sm:text-base truncate">{selectedFile.name}</p>
+                  <p className="text-xs sm:text-sm text-[#6b5d50]">
                     {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
                   </p>
                 </div>
@@ -111,15 +111,15 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
                       fileInputRef.current.value = "";
                     }
                   }}
-                  className="text-[#9a8a7a] hover:text-[#c0392b]"
+                  className="text-[#9a8a7a] hover:text-[#c0392b] flex-shrink-0"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             ) : (
               <>
-                <Upload className="w-10 h-10 text-[#c9a88c] mb-2" />
-                <p className="text-[#6b5d50]">Click to select audio file</p>
+                <Upload className="w-8 h-8 sm:w-10 sm:h-10 text-[#c9a88c] mb-1 sm:mb-2" />
+                <p className="text-[#6b5d50] text-sm sm:text-base">Click to select audio file</p>
                 <p className="text-xs text-[#9a8a7a]">MP3, WAV, OGG, etc.</p>
               </>
             )}
@@ -128,7 +128,7 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
 
         {/* Title */}
         <div>
-          <label htmlFor="title" className="block text-sm font-medium mb-1 text-[#2c2416]">
+          <label htmlFor="title" className="block text-xs sm:text-sm font-medium mb-1 text-[#2c2416]">
             Title *
           </label>
           <input
@@ -136,7 +136,7 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-4 py-2 border border-[#ddd5c8] rounded-lg focus:outline-none focus:border-[#8b5e3c] text-[#2c2416]"
+            className="w-full px-3 sm:px-4 py-2 border border-[#ddd5c8] rounded-lg focus:outline-none focus:border-[#8b5e3c] text-[#2c2416] text-sm sm:text-base"
             placeholder="Track title"
             required
           />
@@ -144,7 +144,7 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
 
         {/* Artist */}
         <div>
-          <label htmlFor="artist" className="block text-sm font-medium mb-1 text-[#2c2416]">
+          <label htmlFor="artist" className="block text-xs sm:text-sm font-medium mb-1 text-[#2c2416]">
             Artist
           </label>
           <input
@@ -152,14 +152,14 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
             id="artist"
             value={artist}
             onChange={(e) => setArtist(e.target.value)}
-            className="w-full px-4 py-2 border border-[#ddd5c8] rounded-lg focus:outline-none focus:border-[#8b5e3c] text-[#2c2416]"
+            className="w-full px-3 sm:px-4 py-2 border border-[#ddd5c8] rounded-lg focus:outline-none focus:border-[#8b5e3c] text-[#2c2416] text-sm sm:text-base"
             placeholder="Artist name"
           />
         </div>
 
         {/* Album */}
         <div>
-          <label htmlFor="album" className="block text-sm font-medium mb-1 text-[#2c2416]">
+          <label htmlFor="album" className="block text-xs sm:text-sm font-medium mb-1 text-[#2c2416]">
             Album
           </label>
           <input
@@ -167,21 +167,21 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
             id="album"
             value={album}
             onChange={(e) => setAlbum(e.target.value)}
-            className="w-full px-4 py-2 border border-[#ddd5c8] rounded-lg focus:outline-none focus:border-[#8b5e3c] text-[#2c2416]"
+            className="w-full px-3 sm:px-4 py-2 border border-[#ddd5c8] rounded-lg focus:outline-none focus:border-[#8b5e3c] text-[#2c2416] text-sm sm:text-base"
             placeholder="Album name"
           />
         </div>
 
         {/* Error Message */}
         {error && (
-          <p className="text-[#c0392b] text-sm">{error}</p>
+          <p className="text-[#c0392b] text-xs sm:text-sm">{error}</p>
         )}
 
         {/* Submit Button */}
         <button
           type="submit"
           disabled={isUploading || !selectedFile || !title}
-          className="w-full bg-[#8b5e3c] text-white py-3 rounded-full font-semibold hover:bg-[#a0704e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-[#8b5e3c] text-white py-2.5 sm:py-3 rounded-full font-semibold hover:bg-[#a0704e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
         >
           {isUploading ? "Uploading..." : "Upload Track"}
         </button>

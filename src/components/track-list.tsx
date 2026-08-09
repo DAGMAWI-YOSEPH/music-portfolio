@@ -29,33 +29,33 @@ export function TrackList({ tracks, currentTrackIndex, onTrackSelect, onDelete }
 
   if (tracks.length === 0) {
     return (
-      <div className="bg-white rounded-2xl p-8 shadow-lg text-center">
-        <Music className="w-16 h-16 text-[#c9a88c] mx-auto mb-4" />
-        <h3 className="text-xl font-bold mb-2 text-[#2c2416]">No tracks yet</h3>
-        <p className="text-[#6b5d50]">Upload your first track to get started</p>
+      <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg text-center">
+        <Music className="w-12 h-12 sm:w-16 sm:h-16 text-[#c9a88c] mx-auto mb-4" />
+        <h3 className="text-lg sm:text-xl font-bold mb-2 text-[#2c2416]">No tracks yet</h3>
+        <p className="text-[#6b5d50] text-sm sm:text-base">Upload your first track to get started</p>
       </div>
     );
   }
 
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-      <div className="p-6 border-b border-[#e8e0d4]">
-        <h3 className="text-xl font-bold text-[#2c2416]">Your Tracks</h3>
-        <p className="text-sm text-[#6b5d50]">{tracks.length} tracks</p>
+      <div className="p-4 sm:p-6 border-b border-[#e8e0d4]">
+        <h3 className="text-lg sm:text-xl font-bold text-[#2c2416]">Your Tracks</h3>
+        <p className="text-xs sm:text-sm text-[#6b5d50]">{tracks.length} tracks</p>
       </div>
 
       <div className="divide-y divide-[#e8e0d4]">
         {tracks.map((track, index) => (
           <div
             key={track.id}
-            className={`flex items-center gap-4 p-4 hover:bg-[#f5f0e8] transition-colors ${
+            className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-[#f5f0e8] transition-colors ${
               currentTrackIndex === index ? "bg-[#f0e6d8]" : ""
             }`}
           >
             {/* Play Button / Index */}
             <button
               onClick={() => onTrackSelect(index)}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-[#f5f0e8] hover:bg-[#8b5e3c] hover:text-white transition-colors"
+              className="w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 flex items-center justify-center rounded-full bg-[#f5f0e8] hover:bg-[#8b5e3c] hover:text-white transition-colors"
             >
               {currentTrackIndex === index ? (
                 <div className="flex gap-0.5">
@@ -64,34 +64,34 @@ export function TrackList({ tracks, currentTrackIndex, onTrackSelect, onDelete }
                   <div className="w-0.5 h-2 bg-[#8b5e3c] animate-pulse" />
                 </div>
               ) : (
-                <Play className="w-4 h-4 ml-0.5" />
+                <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-0.5" />
               )}
             </button>
 
             {/* Track Info */}
             <div className="flex-1 min-w-0">
-              <p className={`font-medium truncate ${
+              <p className={`font-medium truncate text-sm sm:text-base ${
                 currentTrackIndex === index ? "text-[#8b5e3c]" : "text-[#2c2416]"
               }`}>
                 {track.title}
               </p>
-              <p className="text-sm text-[#6b5d50] truncate">
+              <p className="text-xs sm:text-sm text-[#6b5d50] truncate">
                 {track.artist || "Unknown Artist"}
                 {track.album && ` • ${track.album}`}
               </p>
             </div>
 
             {/* Duration */}
-            <span className="text-sm text-[#9a8a7a]">
+            <span className="text-xs sm:text-sm text-[#9a8a7a] flex-shrink-0">
               {formatDuration(track.duration)}
             </span>
 
             {/* Delete Button */}
             <button
               onClick={() => onDelete(track.id)}
-              className="p-2 text-[#c9a88c] hover:text-[#c0392b] transition-colors"
+              className="p-1.5 sm:p-2 text-[#c9a88c] hover:text-[#c0392b] transition-colors flex-shrink-0"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
           </div>
         ))}

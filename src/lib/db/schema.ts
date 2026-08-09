@@ -5,26 +5,26 @@ import {
   integer,
 } from "drizzle-orm/pg-core";
 
-export const users = pgTable("users", {
+export const users = pgTable("user", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name"),
   email: text("email").notNull().unique(),
-  emailVerified: timestamp("email_verified"),
+  emailVerified: timestamp("emailVerified"),
   image: text("image"),
 });
 
-export const accounts = pgTable("accounts", {
+export const accounts = pgTable("account", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  userId: text("user_id")
+  userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   type: text("type").notNull(),
   provider: text("provider").notNull(),
-  providerAccountId: text("provider_account_id").notNull(),
+  providerAccountId: text("providerAccountId").notNull(),
   refresh_token: text("refresh_token"),
   access_token: text("access_token"),
   expires_at: integer("expires_at"),
@@ -34,18 +34,18 @@ export const accounts = pgTable("accounts", {
   session_state: text("session_state"),
 });
 
-export const sessions = pgTable("sessions", {
+export const sessions = pgTable("session", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  sessionToken: text("session_token").notNull().unique(),
-  userId: text("user_id")
+  sessionToken: text("sessionToken").notNull().unique(),
+  userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   expires: timestamp("expires").notNull(),
 });
 
-export const verificationTokens = pgTable("verification_tokens", {
+export const verificationTokens = pgTable("verification_token", {
   identifier: text("identifier").notNull(),
   token: text("token").notNull().unique(),
   expires: timestamp("expires").notNull(),
