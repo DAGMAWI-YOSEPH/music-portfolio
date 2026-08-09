@@ -18,9 +18,10 @@ interface TrackListProps {
   isPlaying: boolean;
   onTrackSelect: (index: number) => void;
   onDelete: (trackId: string) => void;
+  onClearAll: () => void;
 }
 
-export function TrackList({ tracks, currentTrackIndex, isPlaying, onTrackSelect, onDelete }: TrackListProps) {
+export function TrackList({ tracks, currentTrackIndex, isPlaying, onTrackSelect, onDelete, onClearAll }: TrackListProps) {
   const formatDuration = (seconds: number | null) => {
     if (!seconds) return "--:--";
     const mins = Math.floor(seconds / 60);
@@ -40,9 +41,19 @@ export function TrackList({ tracks, currentTrackIndex, isPlaying, onTrackSelect,
 
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-      <div className="p-4 sm:p-6 border-b border-[#e8e0d4]">
-        <h3 className="text-lg sm:text-xl font-bold text-[#2c2416]">Your Tracks</h3>
-        <p className="text-xs sm:text-sm text-[#6b5d50]">{tracks.length} tracks</p>
+      <div className="p-4 sm:p-6 border-b border-[#e8e0d4] flex items-center justify-between">
+        <div>
+          <h3 className="text-lg sm:text-xl font-bold text-[#2c2416]">Your Tracks</h3>
+          <p className="text-xs sm:text-sm text-[#6b5d50]">{tracks.length} tracks</p>
+        </div>
+        {tracks.length > 0 && (
+          <button
+            onClick={onClearAll}
+            className="text-xs text-[#c0392b] hover:text-[#a02010] underline"
+          >
+            Clear all
+          </button>
+        )}
       </div>
 
       <div className="divide-y divide-[#e8e0d4]">

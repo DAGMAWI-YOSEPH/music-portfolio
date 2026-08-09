@@ -65,6 +65,22 @@ export default function DashboardPage() {
     [currentTrackIndex]
   );
 
+  const handleClearAll = async () => {
+    if (!confirm("Delete ALL tracks? This cannot be undone.")) {
+      return;
+    }
+    try {
+      const response = await fetch("/api/tracks/clear", { method: "DELETE" });
+      if (response.ok) {
+        setTracks([]);
+        setCurrentTrackIndex(null);
+        setIsPlaying(false);
+      }
+    } catch (error) {
+      console.error("Failed to clear tracks:", error);
+    }
+  };
+
   const handleDelete = async (trackId: string) => {
     if (!confirm("Are you sure you want to delete this track?")) {
       return;
@@ -178,6 +194,7 @@ export default function DashboardPage() {
               isPlaying={isPlaying}
               onTrackSelect={handleTrackSelect}
               onDelete={handleDelete}
+              onClearAll={handleClearAll}
             />
           </div>
         </div>
