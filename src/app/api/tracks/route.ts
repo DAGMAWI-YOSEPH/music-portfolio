@@ -9,9 +9,10 @@ export const runtime = "nodejs";
 
 async function getUserId(request: NextRequest) {
   const token = await getToken({
-    req: request,
+    req: request as any,
     secret: process.env.NEXTAUTH_SECRET,
   });
+  console.log("Auth token:", token ? { sub: token.sub, id: token.id, email: token.email } : null);
   return (token?.sub || token?.id) as string | undefined;
 }
 
