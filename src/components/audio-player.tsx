@@ -99,7 +99,7 @@ export function AudioPlayer({ tracks, currentTrackIndex, onTrackChange }: AudioP
   }
 
   return (
-    <div className="bg-[#191414] text-white p-6 rounded-2xl shadow-2xl">
+    <div className="bg-[#2c2416] text-white p-6 rounded-2xl shadow-2xl">
       <audio
         ref={audioRef}
         src={currentTrack.fileUrl}
@@ -129,7 +129,7 @@ export function AudioPlayer({ tracks, currentTrackIndex, onTrackChange }: AudioP
           <div className="text-center md:text-left mb-6">
             <h2 className="text-2xl font-bold">{currentTrack.title}</h2>
             {currentTrack.artist && (
-              <p className="text-[#b3b3b3] mt-1">{currentTrack.artist}</p>
+              <p className="text-[#c9a88c] mt-1">{currentTrack.artist}</p>
             )}
           </div>
 
@@ -141,9 +141,9 @@ export function AudioPlayer({ tracks, currentTrackIndex, onTrackChange }: AudioP
               max={duration || 0}
               value={currentTime}
               onChange={handleSeek}
-              className="w-full h-1 bg-[#3e3e3e] rounded-lg appearance-none cursor-pointer accent-[#1db954]"
+              className="w-full h-1 bg-[#4a3f32] rounded-lg appearance-none cursor-pointer accent-[#c9956b]"
             />
-            <div className="flex justify-between text-xs text-[#b3b3b3] mt-1">
+            <div className="flex justify-between text-xs text-[#9a8a7a] mt-1">
               <span>{formatTime(currentTime)}</span>
               <span>{formatTime(duration)}</span>
             </div>
@@ -154,14 +154,14 @@ export function AudioPlayer({ tracks, currentTrackIndex, onTrackChange }: AudioP
             <button
               onClick={handlePrevious}
               disabled={currentTrackIndex === 0}
-              className="text-[#b3b3b3] hover:text-white transition-colors disabled:opacity-50"
+              className="text-[#9a8a7a] hover:text-white transition-colors disabled:opacity-50"
             >
               <SkipBack className="w-6 h-6" />
             </button>
 
             <button
               onClick={togglePlay}
-              className="bg-white text-[#191414] p-3 rounded-full hover:scale-105 transition-transform"
+              className="bg-white text-[#2c2416] p-3 rounded-full hover:scale-105 transition-transform"
             >
               {isPlaying ? (
                 <Pause className="w-6 h-6" />
@@ -173,7 +173,7 @@ export function AudioPlayer({ tracks, currentTrackIndex, onTrackChange }: AudioP
             <button
               onClick={handleNext}
               disabled={currentTrackIndex === tracks.length - 1}
-              className="text-[#b3b3b3] hover:text-white transition-colors disabled:opacity-50"
+              className="text-[#9a8a7a] hover:text-white transition-colors disabled:opacity-50"
             >
               <SkipForward className="w-6 h-6" />
             </button>
@@ -182,7 +182,7 @@ export function AudioPlayer({ tracks, currentTrackIndex, onTrackChange }: AudioP
             <div className="flex items-center gap-2 ml-4">
               <button
                 onClick={() => setIsMuted(!isMuted)}
-                className="text-[#b3b3b3] hover:text-white transition-colors"
+                className="text-[#9a8a7a] hover:text-white transition-colors"
               >
                 {isMuted ? (
                   <VolumeX className="w-5 h-5" />
@@ -200,7 +200,7 @@ export function AudioPlayer({ tracks, currentTrackIndex, onTrackChange }: AudioP
                   setVolume(parseFloat(e.target.value));
                   setIsMuted(false);
                 }}
-                className="w-20 h-1 bg-[#3e3e3e] rounded-lg appearance-none cursor-pointer accent-[#1db954]"
+                className="w-20 h-1 bg-[#4a3f32] rounded-lg appearance-none cursor-pointer accent-[#c9956b]"
               />
             </div>
           </div>

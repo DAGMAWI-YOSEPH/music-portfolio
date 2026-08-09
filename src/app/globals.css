@@ -1,18 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fce4ec;
-  --foreground: #191414;
-  --primary: #1db954;
-  --secondary: #b3b3b3;
-  --vinyl-dark: #282828;
-  --vinyl-groove: #3e3e3e;
+  --background: #f5f0e8;
+  --foreground: #2c2416;
+  --primary: #8b5e3c;
+  --accent: #c9956b;
+  --secondary: #9a8a7a;
+  --vinyl-dark: #2c2416;
+  --vinyl-groove: #4a3f32;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
+  --color-accent: var(--accent);
   --color-secondary: var(--secondary);
   --font-sans: var(--font-inter);
 }
@@ -38,17 +40,4 @@ body {
 
 .vinyl-spin-slow {
   animation: spin 8s linear infinite;
-}
-
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(29, 185, 84, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(29, 185, 84, 0.6);
-  }
-}
-
-.glow-pulse {
-  animation: pulse-glow 2s ease-in-out infinite;
 }

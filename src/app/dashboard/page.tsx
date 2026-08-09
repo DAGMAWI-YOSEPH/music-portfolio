@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogOut, Music } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { AudioPlayer } from "@/components/audio-player";
 import { TrackUpload } from "@/components/track-upload";
 import { TrackList } from "@/components/track-list";
@@ -80,8 +80,8 @@ export default function DashboardPage() {
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1db954]" />
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f0e8]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8b5e3c]" />
       </div>
     );
   }
@@ -91,9 +91,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fce4ec]">
+    <div className="min-h-screen bg-[#f5f0e8]">
       {/* Header */}
-      <header className="bg-[#191414] text-white py-4 px-8">
+      <header className="bg-[#2c2416] text-white py-4 px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <svg viewBox="0 0 24 24" className="w-8 h-8 fill-white">
@@ -115,7 +115,7 @@ export default function DashboardPage() {
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
-              className="flex items-center gap-2 text-[#b3b3b3] hover:text-white transition-colors"
+              className="flex items-center gap-2 text-[#c9a88c] hover:text-white transition-colors"
             >
               <LogOut className="w-5 h-5" />
             </button>
@@ -126,10 +126,10 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-8 py-12">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[#191414]">
+          <h1 className="text-4xl font-bold text-[#2c2416]">
             Welcome, {session.user?.name?.split(" ")[0] || "there"}
           </h1>
-          <p className="text-[#535353] mt-2">
+          <p className="text-[#6b5d50] mt-2">
             Manage and play your music collection
           </p>
         </div>
