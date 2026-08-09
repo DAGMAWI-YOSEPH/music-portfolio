@@ -4,6 +4,17 @@ import { useState, useEffect } from "react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
+import { TrackUpload } from "@/components/track-upload";
+
+interface Track {
+  id: string;
+  title: string;
+  artist: string | null;
+  album: string | null;
+  duration: number | null;
+  fileUrl: string;
+  coverUrl: string | null;
+}
 
 interface User {
   name: string | null;
@@ -13,6 +24,36 @@ interface User {
 }
 
 export function DashboardClient({ user }: { user: User }) {
+  const [tracks, setTracks] = useState<Track[]>([]);
+
+  const fetchTracks = async () => {
+    try {
+      const response = await fetch("/api/tracks");
+      if (response.ok) {
+        const data = await response.json();
+        setTracks(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch tracks:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTracks();
+  }, []);
+
+  const handleClearAll = async () => {
+    if (!confirm("Delete ALL tracks?")) return;
+    try {
+      const response = await fetch("/api/tracks/clear", { method: "DELETE" });
+      if (response.ok) {
+        setTracks([]);
+      }
+    } catch (error) {
+      console.error("Failed to clear tracks:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#f5f0e8]">
       <header className="bg-[#1a1410] text-white py-3 px-4 sm:px-6 md:px-8">
@@ -38,10 +79,25 @@ export function DashboardClient({ user }: { user: User }) {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-8 md:py-12">
-        <h1 className="text-2xl font-bold text-[#2c2416]">
-          Welcome, {user.name?.split(" ")[0] || "there"}
-        </h1>
-        <p className="text-[#6b5d50] mt-2 text-sm">Upload component goes here</p>
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#2c2416]">
+              Welcome, {user.name?.split(" ")[0] || "there"}
+            </h1>
+            <p className="text-[#6b5d50] mt-2 text-sm sm:text-base">
+              Manage and play your music collection
+            </p>
+          </div>
+          {tracks.length > 0 && (
+            <button onClick={handleClearAll} className="text-sm bg-[#c0392b] text-white px-4 py-2 rounded-lg hover:bg-[#a02010] transition-colors self-start">
+              Clear all tracks ({tracks.length})
+            </button>
+          )}
+        </div>
+
+        <div className="max-w-md">
+          <TrackUpload onUploadComplete={fetchTracks} />
+        </div>
       </main>
     </div>
   );
