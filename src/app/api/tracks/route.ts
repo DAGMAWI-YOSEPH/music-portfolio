@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const formData = await request.formData();
-    const file = formData.get("file") as File;
+    const file = formData.get("file") as File | null;
+    const artwork = formData.get("artwork") as File | null;
     const title = formData.get("title") as string;
     const artist = formData.get("artist") as string;
     const album = formData.get("album") as string;
@@ -42,11 +43,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
     const blob = await put(
       `music/${session.user.id}/${Date.now()}-${file.name}`,
-      file,
-      { access: "public" }
+      buffer,
+      {
+        access: "public",
+        contentType: file.type || "audio/mpeg",
+      }
     );
+
+    let coverUrl: string | null = null;
+    if (artwork && artwork.size > 0) {
+      const artBuffer = Buffer.from(await artwork.arrayBuffer());
+      const artBlob = await put(
+        `artwork/${session.user.id}/${Date.now()}-${artwork.name}`,
+        artBuffer,
+        {
+          access: "public",
+          contentType: artwork.type || "image/jpeg",
+        }
+      );
+      coverUrl = artBlob.url;
+    }
 
     const newTrack = await db
       .insert(musicTracks)
@@ -56,6 +77,7 @@ export async function POST(request: NextRequest) {
         artist: artist || null,
         album: album || null,
         fileUrl: blob.url,
+        coverUrl,
       })
       .returning();
 
@@ -63,7 +85,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(
-      { error: "Failed to upload track" },
+      { error: error instanceof Error ? error.message : "Failed to upload track" },
       { status: 500 }
     );
   }

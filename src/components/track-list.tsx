@@ -1,6 +1,6 @@
 "use client";
 
-import { Play, Trash2, Music } from "lucide-react";
+import { Play, Pause, Trash2, Music } from "lucide-react";
 
 interface Track {
   id: string;
@@ -15,11 +15,12 @@ interface Track {
 interface TrackListProps {
   tracks: Track[];
   currentTrackIndex: number | null;
+  isPlaying: boolean;
   onTrackSelect: (index: number) => void;
   onDelete: (trackId: string) => void;
 }
 
-export function TrackList({ tracks, currentTrackIndex, onTrackSelect, onDelete }: TrackListProps) {
+export function TrackList({ tracks, currentTrackIndex, isPlaying, onTrackSelect, onDelete }: TrackListProps) {
   const formatDuration = (seconds: number | null) => {
     if (!seconds) return "--:--";
     const mins = Math.floor(seconds / 60);
@@ -48,25 +49,29 @@ export function TrackList({ tracks, currentTrackIndex, onTrackSelect, onDelete }
         {tracks.map((track, index) => (
           <div
             key={track.id}
-            className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-[#f5f0e8] transition-colors ${
+            className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-[#f5f0e8] transition-colors cursor-pointer ${
               currentTrackIndex === index ? "bg-[#f0e6d8]" : ""
             }`}
+            onClick={() => onTrackSelect(index)}
           >
-            {/* Play Button / Index */}
-            <button
-              onClick={() => onTrackSelect(index)}
-              className="w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 flex items-center justify-center rounded-full bg-[#f5f0e8] hover:bg-[#8b5e3c] hover:text-white transition-colors"
-            >
-              {currentTrackIndex === index ? (
+            {/* Artwork or Play */}
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden flex-shrink-0 bg-[#f5f0e8] flex items-center justify-center">
+              {track.coverUrl ? (
+                <img
+                  src={track.coverUrl}
+                  alt={track.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : currentTrackIndex === index && isPlaying ? (
                 <div className="flex gap-0.5">
                   <div className="w-0.5 h-3 bg-[#8b5e3c] animate-pulse" />
                   <div className="w-0.5 h-4 bg-[#8b5e3c] animate-pulse" />
                   <div className="w-0.5 h-2 bg-[#8b5e3c] animate-pulse" />
                 </div>
               ) : (
-                <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-0.5" />
+                <Play className="w-4 h-4 sm:w-5 sm:h-5 text-[#8b5e3c] ml-0.5" />
               )}
-            </button>
+            </div>
 
             {/* Track Info */}
             <div className="flex-1 min-w-0">
@@ -77,7 +82,7 @@ export function TrackList({ tracks, currentTrackIndex, onTrackSelect, onDelete }
               </p>
               <p className="text-xs sm:text-sm text-[#6b5d50] truncate">
                 {track.artist || "Unknown Artist"}
-                {track.album && ` • ${track.album}`}
+                {track.album && ` · ${track.album}`}
               </p>
             </div>
 
@@ -86,9 +91,12 @@ export function TrackList({ tracks, currentTrackIndex, onTrackSelect, onDelete }
               {formatDuration(track.duration)}
             </span>
 
-            {/* Delete Button */}
+            {/* Delete */}
             <button
-              onClick={() => onDelete(track.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(track.id);
+              }}
               className="p-1.5 sm:p-2 text-[#c9a88c] hover:text-[#c0392b] transition-colors flex-shrink-0"
             >
               <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

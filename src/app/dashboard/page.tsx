@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -24,6 +24,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [tracks, setTracks] = useState<Track[]>([]);
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -52,6 +53,18 @@ export default function DashboardPage() {
     }
   };
 
+  const handleTrackSelect = useCallback(
+    (index: number) => {
+      if (currentTrackIndex === index) {
+        setIsPlaying((prev) => !prev);
+      } else {
+        setCurrentTrackIndex(index);
+        setIsPlaying(true);
+      }
+    },
+    [currentTrackIndex]
+  );
+
   const handleDelete = async (trackId: string) => {
     if (!confirm("Are you sure you want to delete this track?")) {
       return;
@@ -70,6 +83,7 @@ export default function DashboardPage() {
             setCurrentTrackIndex(currentTrackIndex - 1);
           } else if (deletedIndex === currentTrackIndex) {
             setCurrentTrackIndex(null);
+            setIsPlaying(false);
           }
         }
       }
@@ -93,7 +107,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[#f5f0e8]">
       {/* Header */}
-      <header className="bg-[#2c2416] text-white py-3 px-4 sm:px-6 md:px-8">
+      <header className="bg-[#1a1410] text-white py-3 px-4 sm:px-6 md:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <svg viewBox="0 0 24 24" className="w-7 h-7 sm:w-8 sm:h-8 fill-white">
@@ -134,28 +148,35 @@ export default function DashboardPage() {
           </p>
         </div>
 
+        {/* Player */}
+        {tracks.length > 0 && currentTrackIndex !== null && (
+          <div className="mb-6 sm:mb-8">
+            <AudioPlayer
+              tracks={tracks}
+              currentTrackIndex={currentTrackIndex}
+              isPlaying={isPlaying}
+              onTrackChange={(i) => {
+                setCurrentTrackIndex(i);
+                setIsPlaying(true);
+              }}
+              onPlayStateChange={setIsPlaying}
+            />
+          </div>
+        )}
+
         <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
-          {/* Left Column - Upload */}
-          <div className="lg:col-span-1">
+          {/* Upload */}
+          <div className="lg:col-span-1 order-2 lg:order-1">
             <TrackUpload onUploadComplete={fetchTracks} />
           </div>
 
-          {/* Right Column - Player and Track List */}
-          <div className="lg:col-span-2 space-y-6 md:space-y-8">
-            {/* Audio Player */}
-            {tracks.length > 0 && currentTrackIndex !== null && (
-              <AudioPlayer
-                tracks={tracks}
-                currentTrackIndex={currentTrackIndex}
-                onTrackChange={setCurrentTrackIndex}
-              />
-            )}
-
-            {/* Track List */}
+          {/* Track List */}
+          <div className="lg:col-span-2 order-1 lg:order-2">
             <TrackList
               tracks={tracks}
               currentTrackIndex={currentTrackIndex}
-              onTrackSelect={setCurrentTrackIndex}
+              isPlaying={isPlaying}
+              onTrackSelect={handleTrackSelect}
               onDelete={handleDelete}
             />
           </div>
