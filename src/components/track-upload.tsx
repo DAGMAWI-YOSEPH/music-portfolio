@@ -23,10 +23,6 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (!file.type.startsWith("audio/")) {
-        setError("Please select an audio file");
-        return;
-      }
       setSelectedFile(file);
       setError(null);
       setSuccess(false);
@@ -39,10 +35,6 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
   const handleArtworkSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (!file.type.startsWith("image/")) {
-        setError("Please select an image file for artwork");
-        return;
-      }
       setSelectedArtwork(file);
       setError(null);
       const reader = new FileReader();
@@ -88,8 +80,6 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
       setTitle("");
       setArtist("");
       setAlbum("");
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      if (artworkInputRef.current) artworkInputRef.current.value = "";
       setSuccess(true);
       onUploadComplete();
 
@@ -112,7 +102,6 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
             type="file"
             ref={artworkInputRef}
             onChange={handleArtworkSelect}
-            accept="image/*"
             className="hidden"
             id="artwork-upload"
           />
@@ -142,7 +131,6 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
             type="file"
             ref={fileInputRef}
             onChange={handleFileSelect}
-            accept="audio/*"
             className="hidden"
             id="audio-upload"
           />
@@ -167,7 +155,6 @@ export function TrackUpload({ onUploadComplete }: TrackUploadProps) {
                 onClick={(e) => {
                   e.preventDefault();
                   setSelectedFile(null);
-                  if (fileInputRef.current) fileInputRef.current.value = "";
                 }}
                 className="ml-auto text-[#9a8a7a] hover:text-[#c0392b] flex-shrink-0"
               >
