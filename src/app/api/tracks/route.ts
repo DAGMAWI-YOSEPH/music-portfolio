@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth/config";
+import { getToken } from "next-auth/jwt";
 import { db } from "@/lib/db";
 import { musicTracks } from "@/lib/db/schema";
 import { put } from "@vercel/blob";
@@ -7,26 +7,34 @@ import { eq } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
-export async function GET() {
-  const session = await auth();
+async function getUserId(request: NextRequest) {
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+  return (token?.sub || token?.id) as string | undefined;
+}
 
-  if (!session?.user?.id) {
+export async function GET(request: NextRequest) {
+  const userId = await getUserId(request);
+
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const userTracks = await db
     .select()
     .from(musicTracks)
-    .where(eq(musicTracks.userId, session.user.id))
+    .where(eq(musicTracks.userId, userId))
     .orderBy(musicTracks.createdAt);
 
   return NextResponse.json(userTracks);
 }
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  const userId = await getUserId(request);
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -52,7 +60,7 @@ export async function POST(request: NextRequest) {
     const safeName = `${Date.now()}-${sanitize(file.name.replace(/\.[^/.]+$/, ""))}.${ext}`;
 
     const blob = await put(
-      `music/${session.user.id}/${safeName}`,
+      `music/${userId}/${safeName}`,
       file,
       { access: "public" }
     );
@@ -62,7 +70,7 @@ export async function POST(request: NextRequest) {
       const artExt = artwork.name.split(".").pop() || "png";
       const artSafeName = `${Date.now()}-${sanitize(artwork.name.replace(/\.[^/.]+$/, ""))}.${artExt}`;
       const artBlob = await put(
-        `artwork/${session.user.id}/${artSafeName}`,
+        `artwork/${userId}/${artSafeName}`,
         artwork,
         { access: "public" }
       );
@@ -72,7 +80,7 @@ export async function POST(request: NextRequest) {
     const newTrack = await db
       .insert(musicTracks)
       .values({
-        userId: session.user.id,
+        userId,
         title,
         artist: artist || null,
         album: album || null,
@@ -95,9 +103,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const session = await auth();
+  const userId = await getUserId(request);
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -118,7 +126,7 @@ export async function DELETE(request: NextRequest) {
       .where(eq(musicTracks.id, trackId))
       .limit(1);
 
-    if (!track.length || track[0].userId !== session.user.id) {
+    if (!track.length || track[0].userId !== userId) {
       return NextResponse.json(
         { error: "Track not found or unauthorized" },
         { status: 404 }
